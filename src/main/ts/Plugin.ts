@@ -1,14 +1,18 @@
 import { Editor, TinyMCE } from 'tinymce';
+import { addBodyStyles, addEditorStyles, openDialog } from './utils';
 
 declare const tinymce: TinyMCE;
 
-const setup = (editor: Editor, url: string): void => {
+const setup = (editor: Editor): void => {
   editor.ui.registry.addButton('cortex', {
-    text: 'cortex button',
+    text: 'Add mathlive',
     onAction: () => {
-      editor.setContent('<p>content added from cortex</p>');
+      openDialog(editor);
     }
   });
+
+  addBodyStyles();
+  addEditorStyles(editor);
 };
 
 export default (): void => {

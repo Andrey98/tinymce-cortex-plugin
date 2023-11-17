@@ -38,6 +38,8 @@ export const openDialog = (editor: Editor): void => {
         mfe.contentEditable = 'false';
         const mfeContainer = mfe.shadowRoot.querySelector('.ML__mathlive');
         addedElement.appendChild(mfeContainer);
+        mfeContainer.setAttribute("contenteditable", "false");
+        mfeContainer.addEventListener('click', () => openEditDialog(editor, mfe.value, mfeContainer));
 
         addShadowRootStyles(mfe);
         api.close();
@@ -45,6 +47,45 @@ export const openDialog = (editor: Editor): void => {
     });
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(mfe);
+};
+
+export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: Element): void => {
+    const newMfe = new MathfieldElement();
+    newMfe.value = mfeValue;
+    editor.windowManager.open({
+      title: 'Mathlive',
+      body: {
+        type: 'panel',
+        items: [
+          {
+            type: 'htmlpanel',
+            html: `<div id='dialogContent'></div>`
+          }
+        ]
+      },
+      buttons: [
+        {
+          type: 'cancel',
+          text: 'Close'
+        },
+        {
+          type: 'submit',
+          text: 'Save',
+          primary: true
+        }
+      ],
+      onSubmit: function (api) {
+        const newMfeContainer = newMfe.shadowRoot.querySelector('.ML__mathlive');
+        newMfe.contentEditable = 'false';
+        newMfeContainer.setAttribute("contenteditable", "false");
+        newMfeContainer.addEventListener('click', () => openEditDialog(editor, newMfe.value, newMfeContainer));
+        mfeContainer.parentElement.appendChild(newMfeContainer);
+        mfeContainer.parentElement.removeChild(mfeContainer);
+        api.close();
+      }
+    });
+    const wrapper = document.getElementById('dialogContent');
+    wrapper.appendChild(newMfe);
 };
   
 

@@ -1094,4 +1094,7 @@ export const editorStyles = `
   .ML__selection {
     display: none;
   }
+  .ML__hidden {
+    display: none;
+  }
 `;

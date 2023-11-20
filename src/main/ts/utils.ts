@@ -38,9 +38,14 @@ export const openDialog = (editor: Editor): void => {
   
         mfe.contentEditable = 'false';
         const mfeContainer = mfe.shadowRoot.querySelector('.ML__mathlive');
+        const valueHolder = document.createElement('span');
+        valueHolder.innerHTML = mfe.value;
+        valueHolder.classList.add('ML__hidden');
+
         addedElement.appendChild(mfeContainer);
+        addedElement.appendChild(valueHolder);
         mfeContainer.setAttribute("contenteditable", "false");
-        mfeContainer.addEventListener('click', () => openEditDialog(editor, mfe.value, mfeContainer));
+        mfeContainer.addEventListener('click', () => openEditDialog(editor, mfeContainer));
         mfeContainersSet.add(mfeContainer);
 
         addShadowRootStyles(mfe);
@@ -51,9 +56,10 @@ export const openDialog = (editor: Editor): void => {
     wrapper.appendChild(mfe);
 };
 
-export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: Element | Node): void => {
+export const openEditDialog = (editor: Editor, mfeContainer: Element | Node): void => {
     const newMfe = new MathfieldElement();
-    newMfe.value = mfeValue;
+    const hiddenValueHolder = mfeContainer.parentNode.querySelector(".ML__hidden");
+    newMfe.value = hiddenValueHolder?.innerHTML || '';
     editor.windowManager.open({
       title: 'Mathlive',
       body: {
@@ -80,10 +86,13 @@ export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: E
         const newMfeContainer = newMfe.shadowRoot.querySelector('.ML__mathlive');
         newMfe.contentEditable = 'false';
         newMfeContainer.setAttribute("contenteditable", "false");
-        newMfeContainer.addEventListener('click', () => openEditDialog(editor, newMfe.value, newMfeContainer));
+        newMfeContainer.addEventListener('click', () => openEditDialog(editor, newMfeContainer));
         mfeContainersSet.add(newMfeContainer);
         mfeContainersSet.delete(mfeContainer);
         mfeContainer.parentElement.replaceChild(newMfeContainer, mfeContainer);
+        if(hiddenValueHolder){
+            hiddenValueHolder.innerHTML = newMfe.value;
+        }
         api.close();
       }
     });

@@ -19,7 +19,7 @@ const setup = (editor: Editor): void => {
     mfeContainers.forEach(container => {
       if(!mfeContainersSet.has(container)){
         mfeContainersSet.add(container);
-        container.addEventListener('click', () => openEditDialog(editor, 'a^2+b^2', container));
+        container.addEventListener('click', () => openEditDialog(editor, container));
       }
     });
   });

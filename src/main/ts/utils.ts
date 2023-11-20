@@ -2,6 +2,7 @@ import { MathfieldElement } from "mathlive";
 import { bodyStyles, editorStyles, shadowRootStyles } from "./constants";
 import { Editor } from "tinymce";
 
+export const mfeContainersSet = new Set();
 
 export const openDialog = (editor: Editor): void => {
     const mfe = new MathfieldElement();
@@ -40,6 +41,7 @@ export const openDialog = (editor: Editor): void => {
         addedElement.appendChild(mfeContainer);
         mfeContainer.setAttribute("contenteditable", "false");
         mfeContainer.addEventListener('click', () => openEditDialog(editor, mfe.value, mfeContainer));
+        mfeContainersSet.add(mfeContainer);
 
         addShadowRootStyles(mfe);
         api.close();
@@ -49,7 +51,7 @@ export const openDialog = (editor: Editor): void => {
     wrapper.appendChild(mfe);
 };
 
-export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: Element): void => {
+export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: Element | Node): void => {
     const newMfe = new MathfieldElement();
     newMfe.value = mfeValue;
     editor.windowManager.open({
@@ -79,15 +81,16 @@ export const openEditDialog = (editor: Editor, mfeValue: string, mfeContainer: E
         newMfe.contentEditable = 'false';
         newMfeContainer.setAttribute("contenteditable", "false");
         newMfeContainer.addEventListener('click', () => openEditDialog(editor, newMfe.value, newMfeContainer));
-        mfeContainer.parentElement.appendChild(newMfeContainer);
-        mfeContainer.parentElement.removeChild(mfeContainer);
+        mfeContainersSet.add(newMfeContainer);
+        mfeContainersSet.delete(mfeContainer);
+        mfeContainer.parentElement.replaceChild(newMfeContainer, mfeContainer);
         api.close();
       }
     });
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(newMfe);
 };
-  
+
 
 export const addBodyStyles = (): void => {
   const style = document.createElement('style');

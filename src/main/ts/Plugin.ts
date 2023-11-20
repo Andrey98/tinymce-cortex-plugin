@@ -1,5 +1,5 @@
 import { Editor, TinyMCE } from 'tinymce';
-import { addBodyStyles, addEditorStyles, openDialog } from './utils';
+import { addBodyStyles, addEditorStyles, mfeContainersSet, openDialog, openEditDialog } from './utils';
 
 declare const tinymce: TinyMCE;
 
@@ -13,6 +13,16 @@ const setup = (editor: Editor): void => {
 
   addBodyStyles();
   addEditorStyles(editor);
+
+  editor.on('SetContent', () => {
+    const mfeContainers = editor.getBody().querySelectorAll('.ML__mathlive');
+    mfeContainers.forEach(container => {
+      if(!mfeContainersSet.has(container)){
+        mfeContainersSet.add(container);
+        container.addEventListener('click', () => openEditDialog(editor, 'a^2+b^2', container));
+      }
+    });
+  });
 };
 
 export default (): void => {

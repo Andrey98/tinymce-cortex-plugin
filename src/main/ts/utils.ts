@@ -71,7 +71,7 @@ export const openDialog = (editor: Editor): void => {
 export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
     const newMfe = new MathfieldElement();
     const hiddenValueHolder = mfeContainer.querySelector(".ML__hidden");
-    newMfe.value = hiddenValueHolder?.innerHTML || '';
+    newMfe.value = (hiddenValueHolder?.innerHTML || '').split('&amp;').join('&');
     editor.windowManager.open({
       title: 'Mathlive',
       body: {

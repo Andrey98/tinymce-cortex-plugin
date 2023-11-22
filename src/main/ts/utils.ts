@@ -30,7 +30,7 @@ export const openDialog = (editor: Editor): void => {
         }
       ],
       onSubmit: function (api) {
-        editor.selection.setContent(`<p class='mathFieldRow'></p>`);
+        editor.insertContent(`<p class='mathFieldRow'></p>`);
         
         const addedElement = editor.getBody().getElementsByClassName('mathFieldRow')[0];
         addedElement.classList.remove('mathFieldRow');
@@ -44,11 +44,26 @@ export const openDialog = (editor: Editor): void => {
 
         addedElement.appendChild(mfeContainer);
         addedElement.appendChild(valueHolder);
-        mfeContainer.setAttribute("contenteditable", "false");
+        addedElement.setAttribute("contenteditable", "false");
         mfeContainer.addEventListener('click', () => openEditDialog(editor, mfeContainer));
         mfeContainersSet.add(mfeContainer);
 
         addShadowRootStyles(mfe);
+
+        let nextSibling = addedElement.nextSibling as Element;
+        while(nextSibling && (nextSibling.classList?.contains('ML__hidden') || (nextSibling.getAttribute && nextSibling.getAttribute('contenteditable') === 'false'))){
+            nextSibling = nextSibling.nextSibling as Element;
+        }
+        if(nextSibling){
+            editor.selection.setCursorLocation(nextSibling, 0);
+        } else {
+            const newLine = document.createElement('p');
+            newLine.innerHTML = 'x';
+            addedElement.parentElement.appendChild(newLine);
+            editor.selection.select(newLine);
+            editor.insertContent(`<p></p>`);
+        }
+
         api.close();
       }
     });
@@ -83,6 +98,9 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element | Node): vo
         }
       ],
       onSubmit: function (api) {
+        if(newMfe.value === hiddenValueHolder?.innerHTML){
+            return api.close();
+        }
         const newMfeContainer = newMfe.shadowRoot.querySelector('.ML__mathlive');
         newMfe.contentEditable = 'false';
         newMfeContainer.setAttribute("contenteditable", "false");
@@ -92,6 +110,24 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element | Node): vo
         mfeContainer.parentElement.replaceChild(newMfeContainer, mfeContainer);
         if(hiddenValueHolder){
             hiddenValueHolder.innerHTML = newMfe.value;
+        }
+        let nextSibling = newMfeContainer.parentElement?.nextSibling as Element;
+        while(nextSibling && (nextSibling.classList?.contains('ML__hidden') || (nextSibling.getAttribute && nextSibling.getAttribute('contenteditable') === 'false'))){
+            nextSibling = nextSibling.nextSibling as Element;
+        }
+        const siblingChild = nextSibling?.firstChild as Element;
+        if(nextSibling && (!siblingChild?.getAttribute || siblingChild?.getAttribute(`data-mce-bogus`) !== "1")){
+            editor.insertContent(`<p class='ML__hidden'></p>`);
+            editor.selection.setCursorLocation(nextSibling, 0);
+        } else {
+            if(siblingChild?.getAttribute && siblingChild.getAttribute(`data-mce-bogus`) === "1"){
+                newMfeContainer.parentElement.parentElement.removeChild(nextSibling);
+            }
+            const newLine = document.createElement('p');
+            newLine.innerHTML = 'x';
+            newMfeContainer.parentElement.parentElement.appendChild(newLine);
+            editor.selection.select(newLine);
+            editor.insertContent(`<p></p>`);
         }
         api.close();
       }

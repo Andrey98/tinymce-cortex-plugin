@@ -30,7 +30,7 @@ export const openDialog = (editor: Editor): void => {
         }
       ],
       onSubmit: function (api) {
-        editor.insertContent(`<p class='mathFieldRow'></p>`);
+        editor.selection.setContent(`<span class='mathFieldRow'></span>`);
         
         const addedElement = editor.getBody().getElementsByClassName('mathFieldRow')[0];
         addedElement.classList.remove('mathFieldRow');
@@ -43,25 +43,22 @@ export const openDialog = (editor: Editor): void => {
         valueHolder.classList.add('ML__hidden');
 
         addedElement.appendChild(mfeContainer);
-        addedElement.appendChild(valueHolder);
-        addedElement.setAttribute("contenteditable", "false");
+        mfeContainer.appendChild(valueHolder);
+        mfeContainer.setAttribute("contenteditable", "false");
         mfeContainer.addEventListener('click', () => openEditDialog(editor, mfeContainer));
         mfeContainersSet.add(mfeContainer);
 
         addShadowRootStyles(mfe);
 
-        let nextSibling = addedElement.nextSibling as Element;
-        while(nextSibling && (nextSibling.classList?.contains('ML__hidden') || (nextSibling.getAttribute && nextSibling.getAttribute('contenteditable') === 'false'))){
-            nextSibling = nextSibling.nextSibling as Element;
-        }
+        const nextSibling = addedElement.nextSibling as Element;
         if(nextSibling){
             editor.selection.setCursorLocation(nextSibling, 0);
         } else {
-            const newLine = document.createElement('p');
+            const newLine = document.createElement('span');
             newLine.innerHTML = 'x';
             addedElement.parentElement.appendChild(newLine);
             editor.selection.select(newLine);
-            editor.insertContent(`<p></p>`);
+            editor.insertContent(`<span></span>`);
         }
 
         api.close();
@@ -71,9 +68,9 @@ export const openDialog = (editor: Editor): void => {
     wrapper.appendChild(mfe);
 };
 
-export const openEditDialog = (editor: Editor, mfeContainer: Element | Node): void => {
+export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
     const newMfe = new MathfieldElement();
-    const hiddenValueHolder = mfeContainer.parentNode.querySelector(".ML__hidden");
+    const hiddenValueHolder = mfeContainer.querySelector(".ML__hidden");
     newMfe.value = hiddenValueHolder?.innerHTML || '';
     editor.windowManager.open({
       title: 'Mathlive',
@@ -107,27 +104,23 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element | Node): vo
         newMfeContainer.addEventListener('click', () => openEditDialog(editor, newMfeContainer));
         mfeContainersSet.add(newMfeContainer);
         mfeContainersSet.delete(mfeContainer);
+
+        const valueHolder = document.createElement('span');
+        valueHolder.innerHTML = newMfe.value;
+        valueHolder.classList.add('ML__hidden');
+        newMfeContainer.appendChild(valueHolder);
         mfeContainer.parentElement.replaceChild(newMfeContainer, mfeContainer);
-        if(hiddenValueHolder){
-            hiddenValueHolder.innerHTML = newMfe.value;
-        }
-        let nextSibling = newMfeContainer.parentElement?.nextSibling as Element;
-        while(nextSibling && (nextSibling.classList?.contains('ML__hidden') || (nextSibling.getAttribute && nextSibling.getAttribute('contenteditable') === 'false'))){
-            nextSibling = nextSibling.nextSibling as Element;
-        }
-        const siblingChild = nextSibling?.firstChild as Element;
-        if(nextSibling && (!siblingChild?.getAttribute || siblingChild?.getAttribute(`data-mce-bogus`) !== "1")){
+
+        const nextSibling = newMfeContainer.parentElement.nextSibling as Element;
+        if(nextSibling){
             editor.insertContent(`<p class='ML__hidden'></p>`);
             editor.selection.setCursorLocation(nextSibling, 0);
         } else {
-            if(siblingChild?.getAttribute && siblingChild.getAttribute(`data-mce-bogus`) === "1"){
-                newMfeContainer.parentElement.parentElement.removeChild(nextSibling);
-            }
-            const newLine = document.createElement('p');
+            const newLine = document.createElement('span');
             newLine.innerHTML = 'x';
             newMfeContainer.parentElement.parentElement.appendChild(newLine);
             editor.selection.select(newLine);
-            editor.insertContent(`<p></p>`);
+            editor.insertContent(`<span></span>`);
         }
         api.close();
       }

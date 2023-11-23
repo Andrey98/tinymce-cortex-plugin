@@ -1097,4 +1097,7 @@ export const editorStyles = `
   .ML__hidden {
     display: none;
   }
+  .ML__visible {
+    display: initial !important;
+  }
 `;

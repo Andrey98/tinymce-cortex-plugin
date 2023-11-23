@@ -6,7 +6,12 @@ export const mfeContainersSet = new Set();
 
 export const makeDialogWrapperVisible = (): void => {
     const dialogWrapper = document.body.querySelector('.tox-tinymce-aux') as HTMLDivElement;
-    dialogWrapper.style.display = 'initial';
+    dialogWrapper.classList.add('ML__visible');
+} 
+
+export const makeDialogWrapperHidden = (): void => {
+  const dialogWrapper = document.body.querySelector('.tox-tinymce-aux') as HTMLDivElement;
+  dialogWrapper.classList.remove('ML__visible');
 } 
 
 export const openDialog = (editor: Editor): void => {
@@ -34,6 +39,7 @@ export const openDialog = (editor: Editor): void => {
           primary: true
         }
       ],
+      onClose: makeDialogWrapperHidden,
       onSubmit: function (api) {
         editor.selection.setContent(`<span class='mathFieldRow'></span>`);
         
@@ -72,11 +78,7 @@ export const openDialog = (editor: Editor): void => {
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(mfe);
 
-    if(editor.inline){
-      const keyboardIcon = mfe.shadowRoot.querySelector('.ML__virtual-keyboard-toggle');
-      mfe.addEventListener('pointerdown', makeDialogWrapperVisible);
-      keyboardIcon.addEventListener('pointerdown', (e) => e.preventDefault());
-    }
+    makeDialogWrapperVisible();
 };
 
 export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
@@ -105,6 +107,7 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
           primary: true
         }
       ],
+      onClose: makeDialogWrapperHidden,
       onSubmit: function (api) {
         if(newMfe.value === hiddenValueHolder?.innerHTML){
             return api.close();
@@ -139,11 +142,7 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(newMfe);
 
-    if(editor.inline){
-      const keyboardIcon = newMfe.shadowRoot.querySelector('.ML__virtual-keyboard-toggle');
-      newMfe.addEventListener('pointerdown', makeDialogWrapperVisible);
-      keyboardIcon.addEventListener('pointerdown', (e) => e.preventDefault());
-    }
+    makeDialogWrapperVisible();
 };
 
 

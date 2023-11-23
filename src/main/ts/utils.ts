@@ -5,13 +5,13 @@ import { Editor } from "tinymce";
 export const mfeContainersSet = new Set();
 
 export const makeDialogWrapperVisible = (): void => {
-    const dialogWrapper = document.body.querySelector('.tox-tinymce-aux') as HTMLDivElement;
-    dialogWrapper.classList.add('ML__visible');
+  const dialogWrappers = document.body.querySelectorAll('.tox-tinymce-aux');
+  dialogWrappers.forEach(wrapper => wrapper.classList.add('ML__visible'));
 } 
 
 export const makeDialogWrapperHidden = (): void => {
-  const dialogWrapper = document.body.querySelector('.tox-tinymce-aux') as HTMLDivElement;
-  dialogWrapper.classList.remove('ML__visible');
+  const dialogWrappers = document.body.querySelectorAll('.tox-tinymce-aux');
+  dialogWrappers.forEach(wrapper => wrapper.classList.add('ML__visible'));
 } 
 
 export const openDialog = (editor: Editor): void => {

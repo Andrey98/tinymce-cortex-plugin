@@ -4,6 +4,11 @@ import { Editor } from "tinymce";
 
 export const mfeContainersSet = new Set();
 
+export const makeDialogWrapperVisible = (): void => {
+    const dialogWrapper = document.body.querySelector('.tox-tinymce-aux') as HTMLDivElement;
+    dialogWrapper.style.display = 'initial';
+} 
+
 export const openDialog = (editor: Editor): void => {
     const mfe = new MathfieldElement();
     mfe.value = 'a^2+b^2';
@@ -14,7 +19,7 @@ export const openDialog = (editor: Editor): void => {
         items: [
           {
             type: 'htmlpanel',
-            html: `<div id='dialogContent'></div>`
+            html: `<span id='dialogContent'></span>`
           }
         ]
       },
@@ -66,6 +71,12 @@ export const openDialog = (editor: Editor): void => {
     });
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(mfe);
+
+    if(editor.inline){
+      const keyboardIcon = mfe.shadowRoot.querySelector('.ML__virtual-keyboard-toggle');
+      mfe.addEventListener('pointerdown', makeDialogWrapperVisible);
+      keyboardIcon.addEventListener('pointerdown', (e) => e.preventDefault());
+    }
 };
 
 export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
@@ -127,6 +138,12 @@ export const openEditDialog = (editor: Editor, mfeContainer: Element): void => {
     });
     const wrapper = document.getElementById('dialogContent');
     wrapper.appendChild(newMfe);
+
+    if(editor.inline){
+      const keyboardIcon = newMfe.shadowRoot.querySelector('.ML__virtual-keyboard-toggle');
+      newMfe.addEventListener('pointerdown', makeDialogWrapperVisible);
+      keyboardIcon.addEventListener('pointerdown', (e) => e.preventDefault());
+    }
 };
 
 
